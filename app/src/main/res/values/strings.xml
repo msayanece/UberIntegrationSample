@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">UberIntegrationSample</string>
+    <string name="client_id">aDaqZMKKK0gZWJe_gtREtUZMFkC_ZGsK</string>
+    <string name="server_token">ghSAqmQlrr8Hpg-JoS42cnlidjElTNpECBZydWkM</string>
+    <string name="client_secret">PWLUkFJGl2U0CM_J7ZQJhrbpaL5cnPX8mZWt_BCx</string>
+    <string name="redirect_url">https://www.uber.com/en-IN/</string>
+</resources>
