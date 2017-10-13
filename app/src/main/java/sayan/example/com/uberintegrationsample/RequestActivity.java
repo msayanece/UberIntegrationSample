@@ -70,10 +70,27 @@ public class RequestActivity extends AppCompatActivity implements RideRequestBut
         RideRequestButton uberButtonWhite = (RideRequestButton) findViewById(R.id.uber_button_white);
         RideRequestActivityBehavior rideRequestActivityBehavior = new RideRequestActivityBehavior(this,
                 WIDGET_REQUEST_CODE, configuration);
-        uberButtonWhite.setRequestBehavior(rideRequestActivityBehavior);
-        uberButtonWhite.setRideParameters(rideParametersForProduct);
-        uberButtonWhite.setSession(session);
-        uberButtonWhite.loadRideInformation();
+        uberButtonWhite.setRequestBehavior(rideRequestActivityBehavior)
+                .setRideParameters(rideParametersForProduct)
+                .setSession(session)
+                .setCallback(new RideRequestButtonCallback() {
+                    @Override
+                    public void onRideInformationLoaded() {
+                        Toast.makeText(RequestActivity.this, "onRideInformationLoaded", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onError(ApiError apiError) {
+                        Toast.makeText(RequestActivity.this, "onApiError", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        Toast.makeText(RequestActivity.this, "onError", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .loadRideInformation();
+
     }
 
     @Override

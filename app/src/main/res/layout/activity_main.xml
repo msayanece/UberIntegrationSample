@@ -32,12 +32,20 @@
         android:padding="10dp">
 
         <Button
-            android:id="@+id/uber_button_black"
+            android:id="@+id/to_ride_req"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:layout_gravity="left|center_vertical"
             android:onClick="toNextActivity"
-            android:text="Next"
+            android:text="To request activity"
+            />
+        <Button
+            android:id="@+id/to_custom_activity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|center_vertical"
+            android:onClick="toCustomActivity"
+            android:text="To custom activity"
             />
 
     </FrameLayout>

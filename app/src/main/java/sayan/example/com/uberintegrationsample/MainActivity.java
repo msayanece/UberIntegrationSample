@@ -20,7 +20,6 @@ import com.uber.sdk.android.core.auth.LoginButton;
 import com.uber.sdk.android.core.auth.LoginCallback;
 import com.uber.sdk.android.core.auth.LoginManager;
 import com.uber.sdk.core.auth.AccessToken;
-import com.uber.sdk.core.auth.Scope;
 import com.uber.sdk.rides.client.Session;
 import com.uber.sdk.rides.client.SessionConfiguration;
 import com.uber.sdk.rides.client.UberRidesApi;
@@ -28,8 +27,6 @@ import com.uber.sdk.rides.client.error.ApiError;
 import com.uber.sdk.rides.client.error.ErrorParser;
 import com.uber.sdk.rides.client.model.UserProfile;
 import com.uber.sdk.rides.client.services.RidesService;
-
-import java.util.Arrays;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -56,45 +53,45 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        configuration = new SessionConfiguration.Builder()
-                .setClientId(CLIENT_ID)
-                .setRedirectUri(REDIRECT_URI)
-                .setScopes(Arrays.asList(Scope.PROFILE, Scope.RIDE_WIDGETS))
-                .build();
-
-        validateConfiguration(configuration);
-
-        accessTokenManager = new AccessTokenManager(this);
-
-        //Create a button with a custom request code
-        whiteButton = (LoginButton) findViewById(R.id.uber_button_white);
-        whiteButton.setCallback(new SampleLoginCallback())
-                .setSessionConfiguration(configuration);
-
-        //Create a button using a custom AccessTokenManager
-        //Custom Scopes are set using XML for this button as well in R.layout.activity_sample
-
-        //Use a custom button with an onClickListener to call the LoginManager directly
-        loginManager = new LoginManager(accessTokenManager,
-                new SampleLoginCallback(),
-                configuration,
-                CUSTOM_BUTTON_REQUEST_CODE);
-
-        customButton = (Button) findViewById(R.id.custom_uber_button);
-        customButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                loginManager.login(MainActivity.this);
-            }
-        });
+//        configuration = new SessionConfiguration.Builder()
+//                .setClientId(CLIENT_ID)
+//                .setRedirectUri(REDIRECT_URI)
+//                .setScopes(Arrays.asList(Scope.PROFILE, Scope.RIDE_WIDGETS, Scope.PLACES))
+//                .build();
+//
+//        validateConfiguration(configuration);
+//
+//        accessTokenManager = new AccessTokenManager(this);
+//
+//        //Create a button with a custom request code
+//        whiteButton = (LoginButton) findViewById(R.id.uber_button_white);
+//        whiteButton.setCallback(new SampleLoginCallback())
+//                .setSessionConfiguration(configuration);
+//
+//        //Create a button using a custom AccessTokenManager
+//        //Custom Scopes are set using XML for this button as well in R.layout.activity_sample
+//
+//        //Use a custom button with an onClickListener to call the LoginManager directly
+//        loginManager = new LoginManager(accessTokenManager,
+//                new SampleLoginCallback(),
+//                configuration,
+//                CUSTOM_BUTTON_REQUEST_CODE);
+//
+//        customButton = (Button) findViewById(R.id.custom_uber_button);
+//        customButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                loginManager.login(MainActivity.this);
+//            }
+//        });
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (loginManager.isAuthenticated()) {
-            loadProfileInfo();
-        }
+//        if (loginManager.isAuthenticated()) {
+//            loadProfileInfo();
+//        }
     }
 
     @Override
@@ -110,6 +107,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void toNextActivity(View view) {
         startActivity(new Intent(this, RequestActivity.class));
+    }
+
+    public void toCustomActivity(View view) {
+        startActivity(new Intent(this, CustomActivity.class));
     }
 
     private class SampleLoginCallback implements LoginCallback {
@@ -148,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(Call<UserProfile> call, Response<UserProfile> response) {
                         if (response.isSuccessful()) {
-                            Toast.makeText(MainActivity.this, "Welcome "+ response.body().getFirstName(),Toast.LENGTH_LONG).show();
+                            Toast.makeText(MainActivity.this, "Welcome "+ response.body().getUuid(),Toast.LENGTH_LONG).show();
                         } else {
                             ApiError error = ErrorParser.parseError(response);
                             Toast.makeText(MainActivity.this, error.getClientErrors().get(0).getTitle(), Toast.LENGTH_LONG).show();
