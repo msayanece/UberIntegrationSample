@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void toCustomActivity(View view) {
-        startActivity(new Intent(this, CustomActivity.class));
+        startActivity(new Intent(this, CustomActivity2.class));
     }
 
     private class SampleLoginCallback implements LoginCallback {
@@ -149,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(Call<UserProfile> call, Response<UserProfile> response) {
                         if (response.isSuccessful()) {
-                            Toast.makeText(MainActivity.this, "Welcome "+ response.body().getUuid(),Toast.LENGTH_LONG).show();
+                            Toast.makeText(MainActivity.this, "Welcome "+ response.body().getFirstName(),Toast.LENGTH_LONG).show();
                         } else {
                             ApiError error = ErrorParser.parseError(response);
                             Toast.makeText(MainActivity.this, error.getClientErrors().get(0).getTitle(), Toast.LENGTH_LONG).show();

@@ -21,6 +21,7 @@ import com.uber.sdk.android.core.auth.LoginCallback;
 import com.uber.sdk.android.core.auth.LoginManager;
 import com.uber.sdk.core.auth.AccessToken;
 import com.uber.sdk.core.auth.Scope;
+import com.uber.sdk.rides.client.ServerTokenSession;
 import com.uber.sdk.rides.client.Session;
 import com.uber.sdk.rides.client.SessionConfiguration;
 import com.uber.sdk.rides.client.UberRidesApi;
@@ -51,6 +52,7 @@ public class CustomActivity extends AppCompatActivity {
     private AccessTokenManager mAccessTokenManager;
     private ListView listView;
     private TextView textCarDescription;
+    private ServerTokenSession  mServerTokenSession ;
 
     private final float PICKUP_LATITUDE = 22.649023f;
     private final float PICKUP_LONGITUDE = 88.415887f;
@@ -60,6 +62,7 @@ public class CustomActivity extends AppCompatActivity {
 
     private List<String> productIds = new ArrayList<>();
     private List<String> fareIds = new ArrayList<>();
+    private SessionConfiguration config;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +71,14 @@ public class CustomActivity extends AppCompatActivity {
         initialiseUberSDK();
         performLogin();
         initialiseViews();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mLoginManager.isAuthenticated()) {
+            createSession();
+        }
     }
 
     private void initialiseViews() {
@@ -82,13 +93,15 @@ public class CustomActivity extends AppCompatActivity {
     }
 
     private void initialiseUberSDK() {
-        SessionConfiguration config = new SessionConfiguration.Builder()
+        config = new SessionConfiguration.Builder()
                 .setClientId(getResources().getString(R.string.client_id))
+                .setClientSecret(getResources().getString(R.string.client_secret))
+                .setServerToken(getResources().getString(R.string.server_token))
                 .setRedirectUri(getResources().getString(R.string.redirect_url))
-                .setEnvironment(SessionConfiguration.Environment.SANDBOX)
-                .setScopes(Arrays.asList(Scope.PROFILE, Scope.RIDE_WIDGETS, Scope.REQUEST, Scope.REQUEST_RECEIPT))
+                .setScopes(Arrays.asList(Scope.PROFILE, Scope.RIDE_WIDGETS, Scope.PLACES, Scope.REQUEST))
                 .build();
         UberSdk.initialize(config);
+        this.config = config;
     }
 
     private void performLogin() {
@@ -112,11 +125,10 @@ public class CustomActivity extends AppCompatActivity {
             @Override
             public void onAuthorizationCodeReceived(@NonNull String authorizationCode) {
                 Toast.makeText(CustomActivity.this, "Authorization code received", Toast.LENGTH_SHORT).show();
-                createSession();
             }
         };
         AccessTokenManager accessTokenManager = new AccessTokenManager(getApplicationContext());
-        LoginManager loginManager = new LoginManager(accessTokenManager, loginCallback);
+        LoginManager loginManager = new LoginManager(accessTokenManager, loginCallback, config, 1113);
         loginManager.setRedirectForAuthorizationCode(true);
         loginManager.login(this);
         mAccessTokenManager = accessTokenManager;

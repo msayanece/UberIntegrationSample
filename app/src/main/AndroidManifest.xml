@@ -24,6 +24,8 @@
         </activity>
         <activity android:name=".CustomActivity">
         </activity>
+        <activity android:name=".CustomActivity2">
+        </activity>
     </application>
 
 </manifest>

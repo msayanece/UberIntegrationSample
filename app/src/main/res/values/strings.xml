@@ -3,5 +3,7 @@
     <string name="client_id">aDaqZMKKK0gZWJe_gtREtUZMFkC_ZGsK</string>
     <string name="server_token">ghSAqmQlrr8Hpg-JoS42cnlidjElTNpECBZydWkM</string>
     <string name="client_secret">PWLUkFJGl2U0CM_J7ZQJhrbpaL5cnPX8mZWt_BCx</string>
+    <string name="access_token">KA
+        .eyJ2ZXJzaW9uIjoyLCJpZCI6ImRLZTZ4dlJlU2dhd3l0YVM4SnJWV0E9PSIsImV4cGlyZXNfYXQiOjE1MTA3MjI5NDAsInBpcGVsaW5lX2tleV9pZCI6Ik1RPT0iLCJwaXBlbGluZV9pZCI6MX0.G6t7uwCA1K2GX8jqf8-d6ISCkDEI5GCCD2qgGbf1Nwc</string>
     <string name="redirect_url">https://www.uber.com/en-IN</string>
 </resources>
