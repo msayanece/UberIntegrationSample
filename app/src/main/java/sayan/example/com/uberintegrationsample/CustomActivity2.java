@@ -36,6 +36,7 @@ import com.uber.sdk.rides.client.model.UserProfile;
 import com.uber.sdk.rides.client.model.Vehicle;
 import com.uber.sdk.rides.client.services.RidesService;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -101,7 +102,7 @@ public class CustomActivity2 extends AppCompatActivity {
                                 .setBodyParameter("grant_type","authorization_code")
                                 .setBodyParameter("redirect_uri",getResources().getString(R.string.redirect_url))
                                 .setBodyParameter("code",authorizationCode)
-                                .setBodyParameter("scope","profile history request request_receipt all_trips")
+                                .setBodyParameter("scope","profile request all_trips request_receipt history")
                                 .asString()
                                 .setCallback(new FutureCallback<String>() {
                                     @Override
@@ -359,7 +360,7 @@ public class CustomActivity2 extends AppCompatActivity {
 //                Toast.makeText(CustomActivity2.this, "successfully get Ride details", Toast.LENGTH_SHORT).show();
                 switch (response.body().getStatus()) {
                     case "processing":
-                        Toast.makeText(CustomActivity2.this, "Processing...", Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(CustomActivity2.this, "Processing...", Toast.LENGTH_SHORT).show();
                         call.clone().enqueue(this);
                         Handler handler =  new Handler();
                         handler.postDelayed(new Runnable() {
@@ -386,7 +387,7 @@ public class CustomActivity2 extends AppCompatActivity {
                         },5000);
                         break;
                     case "accepted":
-                        Toast.makeText(CustomActivity2.this, "Ride request accepted", Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(CustomActivity2.this, "Ride request accepted", Toast.LENGTH_SHORT).show();
 
                         String rideId = response.body().getRideId();
                         String rideStatus = response.body().getStatus();
@@ -457,7 +458,7 @@ public class CustomActivity2 extends AppCompatActivity {
                         },1000);
                         break;
                     case "arriving":
-                        Toast.makeText(CustomActivity2.this, "Car arriving...", Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(CustomActivity2.this, "Car arriving...", Toast.LENGTH_SHORT).show();
                         call.clone().enqueue(this);
                         Handler handlerArriving =  new Handler();
                         handlerArriving.postDelayed(new Runnable() {
@@ -484,7 +485,7 @@ public class CustomActivity2 extends AppCompatActivity {
                         },10000);
                         break;
                     case "in_progress":
-                        Toast.makeText(CustomActivity2.this, "Ride in progress", Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(CustomActivity2.this, "Ride in progress", Toast.LENGTH_SHORT).show();
                         call.clone().enqueue(this);
 
                         String rideId1 = response.body().getRideId();
@@ -531,6 +532,19 @@ public class CustomActivity2 extends AppCompatActivity {
                         Log.d("uberridedetails", "rideVehicleModel: " + rideVehicleModel1);
                         Log.d("uberridedetails", "rideVehiclePictureUrl: " + rideVehiclePictureUrl1);
 
+                        service.getRideMap(rideId1).enqueue(new Callback<RideMap>() {
+                            @Override
+                            public void onResponse(Call<RideMap> call, Response<RideMap> response) {
+                                if (response.isSuccessful()) {
+                                    Log.d("sayanuberridemap", "ride details status: " + response.body() == null ? "" : response.body().getHref());
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<RideMap> call, Throwable t) {
+
+                            }
+                        });
 
                         Handler handlerInProgress =  new Handler();
                         handlerInProgress.postDelayed(new Runnable() {
@@ -577,7 +591,59 @@ public class CustomActivity2 extends AppCompatActivity {
                     public void onResponse(Call<Ride> call, Response<Ride> response) {
                         if (response.isSuccessful()){
                             Log.d("sayanuberridedetails", "ride details status: "+response.body().getStatus());
-                            Log.d("sayanuberridedetails", "ride details getLocation: "+response.body().getLocation());
+//                            Log.d("sayanuberridedetails", "ride details getLocation: "+response.body().getLocation());
+                            if (response.body().getStatus().equals("completed")){
+                                Ion.with(getApplicationContext())
+                                    .load("GET", "https://sandbox-api.uber.com/v1.2/requests/"+rideId+"/receipt")
+                                    .addHeader("Authorization", accessTokenManager.getAccessToken().getTokenType()+" "+accessTokenManager.getAccessToken().getToken())
+                                    .asString()
+                                    .setCallback(new FutureCallback<String>() {
+                                        @Override
+                                        public void onCompleted(Exception e, String result) {
+                                            try {
+                                                JSONObject jsonObject = new JSONObject(result);
+                                                String total_charged = jsonObject.getString("total_charged");
+                                                Log.d("sayanuberridedetails", "Reciept: "+total_charged);
+
+                                                String total_fare = jsonObject.getString("total_fare");
+                                                Log.d("sayanuberridedetails", "Reciept: "+total_fare);
+
+                                                String currency_code = jsonObject.getString("currency_code");
+                                                Log.d("sayanuberridedetails", "Reciept: "+currency_code);
+
+                                                String duration = jsonObject.getString("duration");
+                                                Log.d("sayanuberridedetails", "Reciept: "+duration);
+
+                                                String distance = jsonObject.getString("distance");
+                                                Log.d("sayanuberridedetails", "Reciept: "+distance);
+
+                                                String distance_label = jsonObject.getString("distance_label");
+                                                Log.d("sayanuberridedetails", "Reciept: "+distance_label);
+
+                                                JSONArray charge_adjustments = jsonObject.getJSONArray("charge_adjustments");
+                                                for (int i = 0; i < charge_adjustments.length();i++){
+                                                    JSONObject charge_adjustmentObject = charge_adjustments.getJSONObject(i);
+                                                    String amount = charge_adjustmentObject.getString("amount");
+                                                    Log.d("sayanuberridedetails", "Reciept: "+amount);
+
+                                                    String name = charge_adjustmentObject.getString("name");
+                                                    Log.d("sayanuberridedetails", "Reciept: "+name);
+
+                                                    String type = charge_adjustmentObject.getString("type");
+                                                    Log.d("sayanuberridedetails", "Reciept: "+type);
+                                                }
+
+                                                String total_owed = jsonObject.getString("total_owed")==null?"":jsonObject.getString("total_owed");
+                                                Log.d("sayanuberridedetails", "Reciept: "+total_owed);
+
+                                                String subtotal = jsonObject.getString("subtotal");
+                                                Log.d("sayanuberridedetails", "Reciept: "+subtotal);
+                                            } catch (JSONException e1) {
+                                                e1.printStackTrace();
+                                            }
+                                        }
+                                    });
+                            }
                         }
                     }
 
@@ -586,47 +652,6 @@ public class CustomActivity2 extends AppCompatActivity {
 
                     }
                 });
-                service.getRideMap(rideId).enqueue(new Callback<RideMap>() {
-                    @Override
-                    public void onResponse(Call<RideMap> call, Response<RideMap> response) {
-//                        Log.d("sayanuberridedetails", "ride details status: "+response.body().getHref());
-                    }
-
-                    @Override
-                    public void onFailure(Call<RideMap> call, Throwable t) {
-
-                    }
-                });
-
-                Ion.with(getApplicationContext())
-                        .load("GET", "https://api.uber.com/v1.2/requests/"+rideId+"/receipt")
-                        .asString()
-                        .setCallback(new FutureCallback<String>() {
-                            @Override
-                            public void onCompleted(Exception e, String result) {
-                                JSONObject jsonObject = new JSONObject();
-                                try {
-                                    String subtotal = jsonObject.getString("subtotal");
-                                    String total_charged = jsonObject.getString("total_charged");
-                                    String total_owed = jsonObject.getString("total_owed");
-                                    String total_fare = jsonObject.getString("total_fare");
-                                    String charge_adjustments = jsonObject.getString("charge_adjustments");
-                                    String duration = jsonObject.getString("duration");
-                                    String distance = jsonObject.getString("distance");
-                                    String distance_label = jsonObject.getString("distance_label");
-                                    Log.d("sayanuberridedetails", "Reciept: "+subtotal);
-                                    Log.d("sayanuberridedetails", "Reciept: "+total_charged);
-                                    Log.d("sayanuberridedetails", "Reciept: "+total_owed);
-                                    Log.d("sayanuberridedetails", "Reciept: "+total_fare);
-                                    Log.d("sayanuberridedetails", "Reciept: "+charge_adjustments);
-                                    Log.d("sayanuberridedetails", "Reciept: "+duration);
-                                    Log.d("sayanuberridedetails", "Reciept: "+distance);
-                                    Log.d("sayanuberridedetails", "Reciept: "+distance_label);
-                                } catch (JSONException e1) {
-                                    e1.printStackTrace();
-                                }
-                            }
-                        });
             }
         }
 
