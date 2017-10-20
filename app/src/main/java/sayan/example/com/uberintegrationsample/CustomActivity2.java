@@ -61,15 +61,20 @@ public class CustomActivity2 extends AppCompatActivity {
     private final float DROPOFF_LONGITUDE = 88.4157f;
     private List<Product> products;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_custom2);
-
+        //for getting session config object after uber sdk initialization
         config = initialiseUberSDK();
+        //to hold access token
         accessTokenManager = new AccessTokenManager(this);
-        loginManager = new LoginManager(accessTokenManager,
-                new LoginCallback() {
+        // for login and create session
+        loginManager = new LoginManager(
+                accessTokenManager,
+                new LoginCallback() {       //called after getting response of calling the api
 
                     @Override
                     public void onLoginCancel() {
@@ -90,6 +95,7 @@ public class CustomActivity2 extends AppCompatActivity {
                                 .show();
                     }
 
+                    //need authorizationCode for generating access token for OAuth2
                     @Override
                     public void onAuthorizationCodeReceived(@NonNull String authorizationCode) {
                         Toast.makeText(CustomActivity2.this, "Your Auth code is: "+authorizationCode,
@@ -141,7 +147,8 @@ public class CustomActivity2 extends AppCompatActivity {
                     }
                 },
                 config,
-                1113).setRedirectForAuthorizationCode(true);
+                1113)
+                .setRedirectForAuthorizationCode(true);
         customButton = (Button) findViewById(R.id.button);
         customButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -345,7 +352,7 @@ public class CustomActivity2 extends AppCompatActivity {
         });
     }
 
-    class RideDetailsCallback implements Callback<Ride> {
+    private class RideDetailsCallback implements Callback<Ride> {
         private final RidesService service;
         private final String rideId;
 
